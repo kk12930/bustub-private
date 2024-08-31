@@ -11,7 +11,7 @@ auto TrieStore::Get(std::string_view key) -> std::optional<ValueGuard<T>> {
   // (2) Lookup the value in the trie.
   // (3) If the value is found, return a ValueGuard object that holds a reference to the value and the
   //     root. Otherwise, return std::nullopt.
-  //throw NotImplementedException("TrieStore::Get is not implemented.");
+  // throw NotImplementedException("TrieStore::Get is not implemented.");
 
   std::shared_ptr<const TrieNode> root_copy;
   auto trie = Trie();
@@ -32,7 +32,7 @@ template <class T>
 void TrieStore::Put(std::string_view key, T value) {
   // You will need to ensure there is only one writer at a time. Think of how you can achieve this.
   // The logic should be somehow similar to `TrieStore::Get`.
-  //throw NotImplementedException("TrieStore::Put is not implemented.");
+  // throw NotImplementedException("TrieStore::Put is not implemented.");
 
   std::shared_ptr<const TrieNode> root_copy;
   // lock_guard 加锁，当离开局部作用域，析构函数自动完成解锁功能
@@ -47,7 +47,7 @@ void TrieStore::Put(std::string_view key, T value) {
 void TrieStore::Remove(std::string_view key) {
   // You will need to ensure there is only one writer at a time. Think of how you can achieve this.
   // The logic should be somehow similar to `TrieStore::Get`.
-  //throw NotImplementedException("TrieStore::Remove is not implemented.");
+  // throw NotImplementedException("TrieStore::Remove is not implemented.");
 
   std::lock_guard<std::mutex> lock(write_lock_);
   // 执行删除操作并获取新的 Trie 实例

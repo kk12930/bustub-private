@@ -52,12 +52,12 @@ class StringExpression : public AbstractExpression {
         for (auto c : val) {
           result += tolower(c);
         }
-      break;
+        break;
       case StringExpressionType::Upper:
         for (auto c : val) {
           result += toupper(c);
         }
-      break;
+        break;
       default:
         break;
     }

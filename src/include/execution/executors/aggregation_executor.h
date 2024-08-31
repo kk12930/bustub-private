@@ -71,13 +71,51 @@ class SimpleAggregationHashTable {
    * @param input The input value
    */
   void CombineAggregateValues(AggregateValue *result, const AggregateValue &input) {
+    // 依照不同的聚合操作类型（agg_types_）进行不同的操作
     for (uint32_t i = 0; i < agg_exprs_.size(); i++) {
+      Value &old_val = result->aggregates_[i];
+      const Value &new_val = input.aggregates_[i];
       switch (agg_types_[i]) {
+          //无论Value是否为null，均统计其数目
         case AggregationType::CountStarAggregate:
+          old_val = old_val.Add(Value(TypeId::INTEGER, 1));
+          break;
+          //统计非null值
         case AggregationType::CountAggregate:
+          if (!new_val.IsNull()) {
+            if (old_val.IsNull()) {
+              old_val = ValueFactory::GetIntegerValue(0);
+            }
+            old_val = old_val.Add(Value(TypeId::INTEGER, 1));
+          }
+          break;
         case AggregationType::SumAggregate:
+          if (!new_val.IsNull()) {
+            if (old_val.IsNull()) {
+              old_val = new_val;
+            } else {
+              old_val = old_val.Add(new_val);
+            }
+          }
+          break;
         case AggregationType::MinAggregate:
+
+          if (!new_val.IsNull()) {
+            if (old_val.IsNull()) {
+              old_val = new_val;
+            } else {
+              old_val = new_val.CompareLessThan(old_val) == CmpBool::CmpTrue ? new_val.Copy() : old_val;
+            }
+          }
+          break;
         case AggregationType::MaxAggregate:
+          if (!new_val.IsNull()) {
+            if (old_val.IsNull()) {
+              old_val = new_val;
+            } else {
+              old_val = new_val.CompareGreaterThan(old_val) == CmpBool::CmpTrue ? new_val.Copy() : old_val;
+            }
+          }
           break;
       }
     }
@@ -204,8 +242,11 @@ class AggregationExecutor : public AbstractExecutor {
 
   /** Simple aggregation hash table */
   // TODO(Student): Uncomment SimpleAggregationHashTable aht_;
+  std::unique_ptr<SimpleAggregationHashTable> aht_;
 
   /** Simple aggregation hash table iterator */
   // TODO(Student): Uncomment SimpleAggregationHashTable::Iterator aht_iterator_;
+  std::unique_ptr<SimpleAggregationHashTable::Iterator> aht_iterator_;
+  bool has_inserted_;
 };
 }  // namespace bustub

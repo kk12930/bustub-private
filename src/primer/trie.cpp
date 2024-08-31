@@ -6,6 +6,12 @@ namespace bustub {
 
 template <class T>
 auto Trie::Get(std::string_view key) const -> const T * {
+  // throw NotImplementedException("Trie::Get is not implemented.");
+
+  // You should walk through the trie to find the node corresponding to the key. If the node doesn't exist, return
+  // nullptr. After you find the node, you should use `dynamic_cast` to cast it to `const TrieNodeWithValue<T> *`. If
+  // dynamic_cast returns `nullptr`, it means the type of the value is mismatched, and you should return nullptr.
+  // Otherwise, return the value.
   auto node = root_;
   for (auto c : key) {
     if (node == nullptr || node->children_.find(c) == node->children_.end()) {
@@ -22,17 +28,7 @@ auto Trie::Get(std::string_view key) const -> const T * {
   }
   return node_value->value_.get();
 }
-/*
-  put 思路：
-  假如我要put的是root 的话：（给root赋值）
-  写时赋值的话 要新创建一个root 然后赋值
-  假如我要给非root 赋值的话：
-  递归处理每个符合条件的node
-    ：
-    向下查找：
-      ：找到的话递归处理下一个节点
-      ：没找到的话创建一个新的节点 然后递归 在插入节点 //递归像栈
-*/
+
 template <class T>
 void PutCycle(const std::shared_ptr<TrieNode> &new_root, std::string_view key, T value) {
   bool flag = false;
@@ -66,6 +62,11 @@ void PutCycle(const std::shared_ptr<TrieNode> &new_root, std::string_view key, T
 
 template <class T>
 auto Trie::Put(std::string_view key, T value) const -> Trie {
+  // Note that `T` might be a non-copyable type. Always use `std::move` when creating `shared_ptr` on that value.
+  // throw NotImplementedException("Trie::Put is not implemented.");
+
+  // You should walk through the trie and create new nodes if necessary. If the node corresponding to the key already
+  // exists, you should create a new `TrieNodeWithValue`.
   if (key.empty()) {
     auto val_p = std::make_shared<T>(std::move(value));
     std::unique_ptr<TrieNodeWithValue<T>> new_root = nullptr;
@@ -85,10 +86,7 @@ auto Trie::Put(std::string_view key, T value) const -> Trie {
   PutCycle<T>(new_root, key, std::move(value));
   return Trie(std::move(new_root));
 }
-// You should walk through the trie and remove nodes if necessary. If the node doesn't contain a value any more,
-// you should convert it to `TrieNode`. If a node doesn't have children any more, you should remove it.
-// 您应该遍历 trie 并在必要时删除节点。如果节点不再包含值，
-// 你应该将其转换为`TrieNode`。如果一个节点不再有子节点，则应该将其删除。
+
 /*
   RemoveCycle:
     找有无当前key的字符 在字树是否存在
@@ -131,6 +129,7 @@ auto RemoveCycle(const std::shared_ptr<TrieNode> &new_roottry, std::string_view 
   }
   return false;
 }
+
 /*
   Remove
     当root为空的时候 返回当前树
@@ -145,8 +144,13 @@ auto RemoveCycle(const std::shared_ptr<TrieNode> &new_roottry, std::string_view 
     当删除失败的时候 返回当前的树
     当删除成功的时候 返回新的树
 */
-
 auto Trie::Remove(std::string_view key) const -> Trie {
+  // throw NotImplementedException("Trie::Remove is not implemented.");
+
+  // You should walk through the trie and remove nodes if necessary. If the node doesn't contain a value any more,
+
+  // you should convert it to `TrieNode`. If a node doesn't have children any more, you should remove it.
+
   if (this->root_ == nullptr) {
     return *this;
   }
@@ -170,4 +174,31 @@ auto Trie::Remove(std::string_view key) const -> Trie {
   }
   return Trie(std::move(newroot));
 }
+
+// Below are explicit instantiation of template functions.
+//
+// Generally people would write the implementation of template classes and functions in the header file. However, we
+// separate the implementation into a .cpp file to make things clearer. In order to make the compiler know the
+// implementation of the template functions, we need to explicitly instantiate them here, so that they can be picked up
+// by the linker.
+
+template auto Trie::Put(std::string_view key, uint32_t value) const -> Trie;
+template auto Trie::Get(std::string_view key) const -> const uint32_t *;
+
+template auto Trie::Put(std::string_view key, uint64_t value) const -> Trie;
+template auto Trie::Get(std::string_view key) const -> const uint64_t *;
+
+template auto Trie::Put(std::string_view key, std::string value) const -> Trie;
+template auto Trie::Get(std::string_view key) const -> const std::string *;
+
+// If your solution cannot compile for non-copy tests, you can remove the below lines to get partial score.
+
+using Integer = std::unique_ptr<uint32_t>;
+
+template auto Trie::Put(std::string_view key, Integer value) const -> Trie;
+template auto Trie::Get(std::string_view key) const -> const Integer *;
+
+template auto Trie::Put(std::string_view key, MoveBlocked value) const -> Trie;
+template auto Trie::Get(std::string_view key) const -> const MoveBlocked *;
+
 }  // namespace bustub
